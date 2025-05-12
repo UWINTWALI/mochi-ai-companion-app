@@ -1,41 +1,46 @@
 import 'package:flutter/material.dart';
 
-class ForgotPasswordPage extends StatelessWidget {
-  const ForgotPasswordPage({super.key});
+class ResetPasswordPage extends StatelessWidget {
+  const ResetPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Forgot Password?'),
+        title: const Text('Secure Your Account 🔐'),
         centerTitle: true,
-        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Enter your email and we'll send you an OTP code to reset your password.",
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 24),
             TextField(
-              controller: emailController,
+              controller: newPasswordController,
+              obscureText: true,
               decoration: const InputDecoration(
-                labelText: 'Your Registered Email',
+                labelText: 'New Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: confirmPasswordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Confirm New Password',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/otp');
+                Navigator.pushNamed(context, '/reset-success');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pinkAccent,
@@ -44,7 +49,7 @@ class ForgotPasswordPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text("Send OTP Code"),
+              child: const Text("Save New Password"),
             ),
           ],
         ),

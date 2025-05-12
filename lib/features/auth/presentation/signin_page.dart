@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/input_field.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class SigninPage extends StatefulWidget {
+  const SigninPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<SigninPage> createState() => _SigninPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SigninPageState extends State<SigninPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _agree = false;
   bool _obscureText = true;
 
   @override
@@ -26,10 +25,10 @@ class _SignupPageState extends State<SignupPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 30),
-              const Text("Join monchi Today!",
+              const Text("Welcome Back 👋",
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              const Text("Create your account and start vibing with monchi today!"),
+              const Text("Login to your account and continue connecting hearts."),
               const SizedBox(height: 30),
 
               InputField(
@@ -50,36 +49,22 @@ class _SignupPageState extends State<SignupPage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _agree,
-                    activeColor: Colors.pinkAccent,
-                    onChanged: (val) => setState(() => _agree = val!),
-                  ),
-                  const Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        text: "I agree to Monchi's ",
-                        children: [
-                          TextSpan(
-                            text: "Terms & Conditions",
-                            style: TextStyle(
-                                color: Colors.pinkAccent, fontWeight: FontWeight.w500),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/forgot-password');
+                  },
+                  child: const Text("Forgot Password?",
+                      style: TextStyle(color: Colors.pinkAccent)),
+                ),
               ),
 
               const SizedBox(height: 20),
               CustomButton(
-                text: "Sign up",
+                text: "Sign in",
                 onPressed: () {
-                  // Handle signup logic
+                  // Handle login logic
                 },
               ),
 
@@ -87,9 +72,9 @@ class _SignupPageState extends State<SignupPage> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, "/log-in");
+                    Navigator.pushNamed(context, "/sign-up");
                   },
-                  child: const Text("Already have an account? Sign in",
+                  child: const Text("Don't have an account? Sign up",
                       style: TextStyle(color: Colors.pinkAccent)),
                 ),
               ),
