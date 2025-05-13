@@ -80,6 +80,10 @@ class _SignupPageState extends State<SignupPage> {
                 text: "Sign up",
                 onPressed: () {
                   // Handle signup logic
+                  Navigator.pushNamed(
+                    context,
+                    '/log-in'
+                  );
                 },
               ),
 

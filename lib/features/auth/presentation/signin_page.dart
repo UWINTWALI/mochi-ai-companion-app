@@ -65,6 +65,7 @@ class _SigninPageState extends State<SigninPage> {
                 text: "Sign in",
                 onPressed: () {
                   // Handle login logic
+                  Navigator.pushNamed(context, '/home'); // Navigate to the home page
                 },
               ),
 
