@@ -1,12 +1,52 @@
 import 'package:flutter/material.dart';
+import '../data/auth_service.dart';
 
-class ForgotPasswordPage extends StatelessWidget {
+class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final emailController = TextEditingController();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
 
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final emailController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _sendResetEmail() async {
+    if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your email')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.sendPasswordResetEmail(emailController.text);
+      if (mounted) {
+        Navigator.pushNamed(
+          context, 
+          '/otp',
+          arguments: emailController.text,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Forgot Password?'),
@@ -34,9 +74,7 @@ class ForgotPasswordPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/otp');
-              },
+              onPressed: _isLoading ? null : _sendResetEmail,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pinkAccent,
                 minimumSize: const Size(double.infinity, 50),
@@ -44,7 +82,9 @@ class ForgotPasswordPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text("Send OTP Code"),
+              child: _isLoading 
+                  ? const CircularProgressIndicator()
+                  : const Text("Send OTP Code"),
             ),
           ],
         ),

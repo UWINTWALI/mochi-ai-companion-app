@@ -1,13 +1,50 @@
 import 'package:flutter/material.dart';
+import '../data/auth_service.dart';
 
-class ResetPasswordPage extends StatelessWidget {
+class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final newPasswordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
+}
 
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
+  final _authService = AuthService();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _resetPassword() async {
+    if (newPasswordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final otp = ModalRoute.of(context)!.settings.arguments as String;
+      await _authService.resetPassword(otp, newPasswordController.text);
+      if (mounted) {
+        Navigator.pushNamed(context, '/reset-success');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Secure Your Account 🔐'),
@@ -39,9 +76,7 @@ class ResetPasswordPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/reset-success');
-              },
+              onPressed: _isLoading ? null : _resetPassword,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pinkAccent,
                 minimumSize: const Size(double.infinity, 50),
@@ -49,7 +84,9 @@ class ResetPasswordPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              child: const Text("Save New Password"),
+              child: _isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text("Save New Password"),
             ),
           ],
         ),

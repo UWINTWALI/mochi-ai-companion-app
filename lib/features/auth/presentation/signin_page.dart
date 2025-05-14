@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/input_field.dart';
+import '../data/auth_repository.dart';
 
 class SigninPage extends StatefulWidget {
   const SigninPage({super.key});
@@ -13,6 +14,10 @@ class _SigninPageState extends State<SigninPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+  
+  final _authRepository = AuthRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -60,14 +65,22 @@ class _SigninPageState extends State<SigninPage> {
                 ),
               ),
 
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+
               const SizedBox(height: 20),
-              CustomButton(
-                text: "Sign in",
-                onPressed: () {
-                  // Handle login logic
-                  Navigator.pushNamed(context, '/home'); // Navigate to the home page
-                },
-              ),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : CustomButton(
+                      text: "Sign in",
+                      onPressed: _signIn,
+                    ),
 
               const SizedBox(height: 20),
               Center(
@@ -88,7 +101,7 @@ class _SigninPageState extends State<SigninPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   socialIconButton("G"),
-                  socialIconButton(""),
+                  socialIconButton(""),
                   socialIconButton("f"),
                   socialIconButton("X"),
                 ],
@@ -98,6 +111,42 @@ class _SigninPageState extends State<SigninPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+        throw Exception('Please fill in all fields');
+      }
+
+      final user = await _authRepository.signInWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+      
+      if (user != null) {
+        // Successfully signed in
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/main');
+        }
+      } else {
+        // This should not happen, but just in case
+        throw Exception('Failed to sign in. Please try again.');
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Widget socialIconButton(String label) {

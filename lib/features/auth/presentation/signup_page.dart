@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/input_field.dart';
+import '../data/auth_repository.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -14,6 +15,10 @@ class _SignupPageState extends State<SignupPage> {
   final _passwordController = TextEditingController();
   bool _agree = false;
   bool _obscureText = true;
+  bool _isLoading = false;
+  String? _errorMessage;
+  
+  final _authRepository = AuthRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -75,17 +80,22 @@ class _SignupPageState extends State<SignupPage> {
                 ],
               ),
 
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+
               const SizedBox(height: 20),
-              CustomButton(
-                text: "Sign up",
-                onPressed: () {
-                  // Handle signup logic
-                  Navigator.pushNamed(
-                    context,
-                    '/log-in'
-                  );
-                },
-              ),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : CustomButton(
+                      text: "Sign up",
+                      onPressed: _signUp,
+                    ),
 
               const SizedBox(height: 20),
               Center(
@@ -106,7 +116,7 @@ class _SignupPageState extends State<SignupPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   socialIconButton("G"),
-                  socialIconButton(""),
+                  socialIconButton(""),
                   socialIconButton("f"),
                   socialIconButton("X"),
                 ],
@@ -116,6 +126,47 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _signUp() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+        throw Exception('Please fill in all fields');
+      }
+
+      if (!_agree) {
+        throw Exception('Please agree to the Terms & Conditions');
+      }
+
+      final user = await _authRepository.signUpWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+      
+      if (user != null) {
+        // Successfully signed up, navigate to login or main screen
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/main');
+          // Alternatively: Navigator.pushReplacementNamed(context, '/log-in');
+        }
+      } else {
+        // This should not happen, but just in case
+        throw Exception('Failed to sign up. Please try again.');
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Widget socialIconButton(String label) {
